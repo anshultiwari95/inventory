@@ -6,8 +6,6 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import {
-  DataGrid,
-  gridClasses,
   GridToolbarExport,
   GridActionsCellItem,
   GridToolbarContainer,
@@ -29,7 +27,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { EmptyContent } from 'src/components/empty-content';
+import {DataGridTable} from "src/components/data-grid-table"
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -42,7 +40,6 @@ import {
   RenderCellProduct,
   RenderCellCreatedAt,
 } from '../product-table-row';
-
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
@@ -245,7 +242,7 @@ export function ProductListView() {
             flexDirection: { md: 'column' },
           }}
         >
-          <DataGrid
+          {/* <DataGrid
             checkboxSelection
             disableRowSelectionOnClick
             rows={dataFiltered}
@@ -268,6 +265,16 @@ export function ProductListView() {
               columnsManagement: { getTogglableColumns },
             }}
             sx={{ [`& .${gridClasses.cell}`]: { alignItems: 'center', display: 'inline-flex' } }}
+          /> */}
+          <DataGridTable
+            columns={columns}
+            data={products}
+            dataLoading={productsLoading}
+            filters={filters}
+            mockOptions={PRODUCT_STOCK_OPTIONS}
+            publishOptions={PUBLISH_OPTIONS}
+            showFilter
+            applyFilter={applyFilter}
           />
         </Card>
       </DashboardContent>
