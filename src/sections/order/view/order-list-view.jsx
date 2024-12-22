@@ -7,11 +7,11 @@ import Card from '@mui/material/Card';
 import { Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 // import { Tab, Tabs } from '@mui/material';
+import TableBody from '@mui/material/TableBody';
 import Tooltip from '@mui/material/Tooltip';
+import Table from '@mui/material/Table';
 import IconButton from '@mui/material/IconButton';
 import {
-  DataGrid,
-  gridClasses,
   GridToolbarExport,
   GridActionsCellItem,
   GridToolbarContainer,
@@ -37,24 +37,40 @@ import { _orders, mockLocations, ORDER_STATUS_OPTIONS } from 'src/_mock';
 // import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
-import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { useTable, rowInPage, getComparator, TableSelectedAction } from 'src/components/table';
+// import { useTable, rowInPage, getComparator, TableSelectedAction } from 'src/components/table';
+import {DataGridTable} from "src/components/data-grid-table"
+import { Scrollbar } from 'src/components/scrollbar';
+import {
+  useTable,
+  emptyRows,
+  rowInPage,
+  TableNoData,
+  getComparator,
+  TableEmptyRows,
+  TableHeadCustom,
+  TableSelectedAction,
+  TablePaginationCustom,
+} from 'src/components/table';
 
 import { ProductTableFiltersResult } from 'src/sections/product/product-table-filters-result';
 import {
-  RenderCellPrice,
-  RenderCellStock,
-  RenderCellProduct,
-  RenderCellPublish,
   RenderCellCreatedAt,
-} from 'src/sections/product/product-table-row';
+  RenderCellStock,
+  RenderCellStreet,
+  RenderCellState,
+  RenderCellCity,
+  RenderCellCountry,
+  RenderCellZip,
+  RenderCellOrder
+} from '../order-table-row';
+// import {GeneralTableToolbar} from 'src/components/search-bar/table-toolbar';
 
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
 import { ProductTableToolbar } from '../../product/product-table-toolbar';
-
+import { OrderTableRow } from '../order-table-row';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
@@ -84,6 +100,10 @@ const TABLE_HEAD = [
 ];
 
 // ----------------------------------------------------------------------
+const PUBLISH_OPTIONS = [
+  { value: 'published', label: 'Published' },
+  { value: 'draft', label: 'Draft' },
+];
 
 export function OrderListView() {
   const table = useTable({ defaultOrderBy: 'locationId' });
@@ -190,21 +210,18 @@ export function OrderListView() {
   );
 
   const columns = [
-    { field: 'category', headerName: 'Category', filterable: false },
     {
       field: 'location',
       headerName: 'Location',
       flex: 1,
-      minWidth: 360,
-      hideable: false,
-      valueOptions: mockLocations.locations,
+      minWidth: 60,
       renderCell: (params) => (
-        <RenderCellProduct params={params} onViewRow={() => handleViewRow(params.row.id)} />
+        <RenderCellOrder params={params} onViewRow={() => handleViewRow(params.row.locationName)} />
       ),
     },
     {
       field: 'createdAt',
-      headerName: 'Create at',
+      headerName: 'Created at',
       width: 160,
       renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
@@ -222,7 +239,7 @@ export function OrderListView() {
       width: 140,
       editable: true,
       valueOptions: mockLocations.street,
-      renderCell: (params) => <RenderCellPrice params={params} />,
+      renderCell: (params) => <RenderCellStreet params={params} />,
     },
     {
       field: 'state',
@@ -231,7 +248,7 @@ export function OrderListView() {
       type: 'singleSelect',
       editable: true,
       valueOptions: mockLocations.state,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      renderCell: (params) => <RenderCellState params={params} />,
     },
     {
       field: 'city',
@@ -240,7 +257,7 @@ export function OrderListView() {
       type: 'singleSelect',
       editable: true,
       valueOptions: mockLocations.city,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      renderCell: (params) => <RenderCellCity params={params} />,
     },
     {
       field: 'country',
@@ -249,7 +266,7 @@ export function OrderListView() {
       type: 'singleSelect',
       editable: true,
       valueOptions: mockLocations.country,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      renderCell: (params) => <RenderCellCountry params={params} />,
     },
     {
       field: 'zip',
@@ -258,7 +275,7 @@ export function OrderListView() {
       type: 'singleSelect',
       editable: true,
       valueOptions: mockLocations.zip,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      renderCell: (params) => <RenderCellZip params={params} />,
     },
     {
       type: 'actions',
@@ -328,7 +345,14 @@ export function OrderListView() {
           New Location
         </Button>
 
-        <Card>
+        <Card
+          sx={{
+            flexGrow: { md: 1 },
+            display: { md: 'flex' },
+            height: { xs: 800, md: 2 },
+            flexDirection: { md: 'column' },
+          }}
+        >
           {/* <Tabs
             value={filters.state.status}
             onChange={handleFilterStatus}
@@ -366,13 +390,13 @@ export function OrderListView() {
             ))}
           </Tabs> */}
 
-          <OrderTableToolbar
+          {/* <OrderTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
             dateError={dateError}
-          />
+          /> */}
 
-          {canReset && (
+          {/* {canReset && (
             <OrderTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
@@ -401,7 +425,7 @@ export function OrderListView() {
               }
             />
 
-            {/* <Scrollbar sx={{ minHeight: 444 }}>
+            <Scrollbar sx={{ minHeight: 444 }}>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -443,10 +467,10 @@ export function OrderListView() {
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
-            </Scrollbar> */}
+            </Scrollbar>
           </Box>
 
-          {/* <TablePaginationCustom
+          <TablePaginationCustom
             page={table.page}
             dense={table.dense}
             count={dataFiltered.length}
@@ -455,29 +479,14 @@ export function OrderListView() {
             onChangeDense={table.onChangeDense}
             onRowsPerPageChange={table.onChangeRowsPerPage}
           /> */}
-          <DataGrid
-            checkboxSelection
-            disableRowSelectionOnClick
-            rows={dataFiltered}
+           <DataGridTable
             columns={columns}
-            loading={ordersLoading}
-            getRowHeight={() => 'auto'}
-            pageSizeOptions={[5, 10, 25]}
-            initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-            onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
-            slots={{
-              toolbar: CustomToolbarCallback,
-              noRowsOverlay: () => <EmptyContent />,
-              noResultsOverlay: () => <EmptyContent title="No results found" />,
-            }}
-            slotProps={{
-              panel: { anchorEl: filterButtonEl },
-              toolbar: { setFilterButtonEl },
-              columnsManagement: { getTogglableColumns },
-            }}
-            sx={{ [`& .${gridClasses.cell}`]: { alignItems: 'center', display: 'inline-flex' } }}
+            data={tableData}
+            dataLoading={false}
+            filters={undefined}
+            mockOptions={ORDER_STATUS_OPTIONS}
+            publishOptions={PUBLISH_OPTIONS}
+            showFilter={false}
           />
         </Card>
       </DashboardContent>
