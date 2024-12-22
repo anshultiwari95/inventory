@@ -364,16 +364,19 @@ const ITEMS = [...Array(3)].map((_, index) => ({
 }));
 
 export const _orders = [...Array(20)].map((_, index) =>
+{
   // const shipping = 10;
 
   // const discount = 10;
 
   // const taxes = 10;
 
-  // const items = (index % 2 && ITEMS.slice(0, 1)) || (index % 3 && ITEMS.slice(1, 3)) || ITEMS;
+  const items = (index % 2 && ITEMS.slice(0, 1)) || (index % 3 && ITEMS.slice(1, 3)) || ITEMS;
 
-  // const totalQuantity = items.reduce((accumulator, item) => accumulator + item.quantity, 0);
+  const totalQuantity = items.reduce((accumulator, item) => accumulator + item.quantity, 0);
 
+  const available = items.reduce((accumulator, item) => accumulator/2 + item.quantity, 0)
+  const inventoryType = index%2 === 0 ? 'out of stock': 'low stock';
   // const subtotal = items.reduce((accumulator, item) => accumulator + item.price * item.quantity, 0);
 
   // const totalAmount = subtotal - shipping - discount + taxes;
@@ -402,7 +405,8 @@ export const _orders = [...Array(20)].map((_, index) =>
   //   ],
   // };
 
-  ({
+  return(
+    {
     id: _mock.id(index),
     orderNumber: `#601${index}`,
     createdAt: _mock.time(index),
@@ -432,6 +436,10 @@ export const _orders = [...Array(20)].map((_, index) =>
     state: mockLocations[index % mockLocations.length].state,
     zip: mockLocations[index % mockLocations.length].zip,
     country: mockLocations[index % mockLocations.length].country,
-    stock: mockLocations[index % mockLocations.length].stock,
+    available,
+    quantity: totalQuantity,
+    inventoryType,
+
   })
+}
 );
